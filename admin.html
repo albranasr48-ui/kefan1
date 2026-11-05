@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة الإدارة - مصنع القهوة</title>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --surface: #ffffff;
+            --primary: #1e293b;
+            --primary-hover: #0f172a;
+            --accent: #d97706;
+            --success: #059669;
+            --danger: #dc2626;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; text-align: right; direction: rtl; }
+        header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .brand-box { display: flex; align-items: center; gap: 15px; }
+        .brand-box img { height: 45px; width: 45px; object-fit: cover; border-radius: 50%; border: 2px solid var(--primary); }
+        .brand-box h1 { margin: 0; font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; text-align: right; }
+        .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px; margin-bottom: 25px; border: 1px solid var(--border); text-align: right; }
+        .auth-container { max-width: 450px; margin: 50px auto; text-align: right; }
+        .auth-container h2 { margin-top: 0; color: var(--primary); font-size: 1.5rem; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+        input, select { width: 100%; padding: 12px 16px; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: #fff; text-align: right; }
+        button { background: var(--primary); color: #fff; font-weight: 700; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1rem; }
+        button:hover { background: var(--primary-hover); }
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; background: #e2e8f0; padding: 6px; border-radius: var(--radius); }
+        .nav-tabs button { flex: 1; background: transparent; color: var(--text-main); border-radius: 8px; font-size: 0.9rem; }
+        .nav-tabs button.active-tab { background: var(--surface); color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-box { background: var(--surface); padding: 25px; border-radius: var(--radius); border-right: 5px solid var(--accent); box-shadow: var(--shadow); }
+        .stat-box h4 { margin: 0 0 10px 0; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
+        .stat-box p { margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+        .table-responsive { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; background: var(--surface); text-align: right; }
+        th, td { padding: 14px 18px; border-bottom: 1px solid var(--border); text-align: right; }
+        th { background: #f1f5f9; color: var(--primary); font-weight: 700; font-size: 0.9rem; }
+        .flex-row { display: flex; gap: 15px; }
+        .flex-row > div { flex: 1; }
+        .hidden { display: none !important; }
+        @media print { body * { visibility: hidden; } #printableArea, #printableArea * { visibility: visible; } #printableArea { position: absolute; left: 0; top: 0; width: 100%; padding: 40px; background: #fff; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-box">
+            <img id="headerLogoImg" src="" alt="شعار المصنع" style="display: none;">
+            <div>
+                <h1 id="headerTitle">مصنع القهوة</h1>
+                <span id="headerPhone" style="font-size: 0.85rem; color: var(--text-muted);">بوابة الإدارة العليا</span>
+            </div>
+        </div>
+        <div style="font-weight: 600; color: #fff; background: var(--primary); padding: 6px 14px; border-radius: 20px; font-size: 0.85rem;">إدارة النظام</div>
+    </header>
+
+    <div class="container">
+        
+        <!-- تسجيل دخول الإدارة -->
+        <div id="adminAuthCard" class="card auth-container">
+            <h2>تسجيل دخول الإدارة العليا</h2>
+            <label>اسم المستخدم</label>
+            <input type="text" id="admLoginUser" placeholder="admin">
+            <label>كلمة المرور</label>
+            <input type="password" id="admLoginPass" placeholder="1234">
+            <button onclick="loginAdmin()">دخول لوحة التحكم</button>
+        </div>
+
+        <!-- لوحة تحكم الإدارة -->
+        <div id="adminMain" class="hidden">
+            <div class="card" style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #1e293b, #0f172a); color: white;">
+                <div>
+                    <h3 style="margin:0; font-size: 1.4rem;">لوحة التحكم الإدارية المركزية</h3>
+                    <p style="margin: 5px 0 0 0; opacity: 0.8; font-size: 0.9rem;">السيطرة الكاملة على العمليات والمصنع</p>
+                </div>
+                <button onclick="logoutAdmin()" style="width: auto; background: var(--danger); padding: 8px 18px; margin:0;">تسجيل خروج</button>
+            </div>
+
+            <div class="nav-tabs">
+                <button onclick="showAdminTab('adDash')" class="active-tab" id="btnAdDash">الرئيسية</button>
+                <button onclick="showAdminTab('adProducts')" id="btnAdProducts">إدارة الأصناف</button>
+                <button onclick="showAdminTab('adInvoices')" id="btnAdInvoices">فواتير المصنع</button>
+                <button onclick="showAdminTab('adSalesmen')" id="btnAdSalesmen">إدارة المندوبين</button>
+                <button onclick="showAdminTab('adSettings')" id="btnAdSettings">إعدادات المصنع</button>
+            </div>
+
+            <!-- الرئيسية -->
+            <div id="adDash" class="admin-tab card">
+                <h3 style="margin-top: 0; color: var(--primary);">ملخص العمليات والمالية</h3>
+                <div class="stats-grid">
+                    <div class="stat-box"><h4>إجمالي مبيعات المصنع</h4><p><span id="adStatSales">0</span> د.ل</p></div>
+                    <div class="stat-box"><h4>إجمالي عدد الفواتير</h4><p id="adStatCount">0</p></div>
+                    <div class="stat-box" style="border-right-color: var(--success);">
+                        <h4>صافي أرباح المصنع</h4>
+                        <p style="color: var(--success);"><span id="adStatNet">0</span> د.ل</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إدارة الأصناف -->
+            <div id="adProducts" class="admin-tab card hidden">
+                <h3 id="prodFormTitle" style="margin-top: 0; color: var(--primary);">إضافة صنف جديد للمنظومة</h3>
+                <input type="hidden" id="editProdId">
+                <label>اسم المنتج</label><input type="text" id="pName" placeholder="مثال: قهوة تركية محمصة">
+                <div class="flex-row">
+                    <div><label>تكلفة القطعة</label><input type="number" id="pCostPiece" placeholder="0.00"></div>
+                    <div><label>سعر بيع القطعة</label><input type="number" id="pSellPiece" placeholder="0.00"></div>
+                </div>
+                <div class="flex-row">
+                    <div><label>تكلفة الصندوق</label><input type="number" id="pCostBox" placeholder="0.00"></div>
+                    <div><label>سعر بيع الصندوق</label><input type="number" id="pSellBox" placeholder="0.00"></div>
+                </div>
+                <button id="prodSaveBtn" onclick="saveProduct()" style="background: var(--success); margin-top: 10px;">حفظ المنتج</button>
+                <button id="prodCancelBtn" onclick="resetProductForm()" class="hidden" style="background:#64748b; margin-top: 5px;">إلغاء التعديل</button>
+
+                <h4 style="margin-top: 35px; color: var(--primary);">قائمة الأصناف الحالية</h4>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>اسم المنتج</th>
+                                <th>قطعة (تكلفة / بيع)</th>
+                                <th>صندوق (تكلفة / بيع)</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adProductsTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- فواتير المصنع -->
+            <div id="adInvoices" class="admin-tab card hidden">
+                <h3 style="margin-top: 0; color: var(--primary);">متابعة جميع فواتير المندوبين</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>المندوب</th>
+                                <th>رقم الفاتورة</th>
+                                <th>المحل</th>
+                                <th>الإجمالي</th>
+                                <th>حالة الختم</th>
+                                <th>الإجراءات وطباعة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adInvoicesTbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- إدارة المندوبين -->
+            <div id="adSalesmen" class="admin-tab card hidden">
+                <h3 style="margin-top: 0; color: var(--primary);">إضافة مندوب جديد</h3>
+                <div class="flex-row">
+                    <div><label>الاسم الكامل</label><input type="text" id="newSmName" placeholder="الاسم الكامل"></div>
+                    <div><label>اسم المستخدم</label><input type="text" id="newSmUser" placeholder="username"></div>
+                </div>
+                <div class="flex-row">
+                    <div><label>كلمة المرور</label><input type="password" id="newSmPass" placeholder="password"></div>
+                    <div>
+                        <div class="flex-row">
+                            <div><label>ربح القطعة</label><input type="number" id="newSmRatePiece" placeholder="0"></div>
+                            <div><label>ربح الصندوق</label><input type="number" id="newSmRateBox" placeholder="0"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="addSalesman()" style="background: var(--success);">حفظ وتسجيل المندوب</button>
+
+                <hr style="margin: 35px 0; border:0; border-top: 1px solid var(--border);">
+                
+                <h3 style="color: var(--primary);">إدارة وتعديل وحذف المندوبين</h3>
+                <label>اختر المندوب لإدارة حسابه وأرباحه</label>
+                <select id="adSelectSalesman" onchange="loadAdminSalesmanDetails()"></select>
+
+                <div id="adSmDetailCard" class="card hidden" style="background: #f8fafc; margin-top: 20px; border: 2px solid var(--border);">
+                    <h4 id="adSmTitle" style="margin-top:0; color: var(--primary);"></h4>
+                    <div class="stats-grid" style="margin-bottom: 20px;">
+                        <div class="stat-box" style="background:#fff;"><h4>إجمالي الأرباح</h4><p><span id="adSmTotProf">0</span> د.ل</p></div>
+                        <div class="stat-box" style="background:#fff;"><h4>غير خالص</h4><p><span id="adSmUnpaidProf">0</span> د.ل</p></div>
+                        <div class="stat-box" style="background:#fff; border-right-color: var(--success);"><h4>المستحق للتسديد</h4><p style="color:var(--success);"><span id="adSmNetRem">0</span> د.ل</p></div>
+                    </div>
+
+                    <h4 style="color: var(--primary);">تعديل بيانات المندوب</h4>
+                    <div class="flex-row">
+                        <div><label>الاسم</label><input type="text" id="editSmName"></div>
+                        <div><label>اسم المستخدم</label><input type="text" id="editSmUser"></div>
+                    </div>
+                    <div class="flex-row">
+                        <div><label>كلمة المرور الجديدة</label><input type="text" id="editSmPass"></div>
+                        <div>
+                            <div class="flex-row">
+                                <div><label>ربح القطعة</label><input type="number" id="editSmRatePiece"></div>
+                                <div><label>ربح الصندوق</label><input type="number" id="editSmRateBox"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-row" style="gap: 10px;">
+                        <button onclick="updateSelectedSalesman()" style="background: var(--success);">حفظ التعديلات</button>
+                        <button onclick="deleteSelectedSalesman()" style="background: var(--danger);">حذف المندوب نهائياً</button>
+                    </div>
+
+                    <hr style="margin: 25px 0; border:0; border-top: 1px solid var(--border);">
+                    <label>تسديد قيمة من رصيد أرباح المندوب</label>
+                    <div class="flex-row">
+                        <input type="number" id="adPayoutVal" placeholder="أدخل المبلغ المراد تسديده" style="margin-bottom:0;">
+                        <button onclick="executePayout()" style="background: var(--accent); width: 220px;">تسديد وإصدار إيصال</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- إعدادات المصنع -->
+            <div id="adSettings" class="admin-tab card hidden auth-container" style="margin: 0 auto; max-width: 100%;">
+                <h3 style="margin-top: 0; color: var(--primary);">إعدادات المصنع والعلامة التجارية</h3>
+                <label>اسم المصنع</label><input type="text" id="cfgFactoryName">
+                <label>رقم هاتف المصنع</label><input type="text" id="cfgFactoryPhone">
+                <label>شعار المصنع (اختر صورة من جهازك)</label>
+                <input type="file" id="cfgFactoryLogoFile" accept="image/*" onchange="handleLogoUpload(event)">
+                <div style="margin: 15px 0;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">معاينة الشعار الحالي:</span><br>
+                    <img id="cfgLogoPreview" src="" alt="" style="height: 70px; margin-top: 8px; border-radius: 8px; display: none; object-fit: contain; border: 1px solid var(--border);">
+                </div>
+                <button onclick="saveFactoryConfig()" style="background: var(--success);">حفظ كافة إعدادات المصنع</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="printableArea" class="hidden"></div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('coffeeFactoryDB_v2')) || {
+            config: { name: "مصنع القهوة", phone: "0910000000", logo: "" },
+            admins: [{ name: "المدير العام", user: "admin", pass: "1234" }],
+            salesmen: [],
+            products: [],
+            invoices: [],
+            payouts: []
+        };
+
+        let currentAdmin = null;
+        let tempLogoBase64 = db.config.logo;
+
+        function saveDB() {
+            localStorage.setItem('coffeeFactoryDB_v2', JSON.stringify(db));
+            updateHeaderInfo();
+        }
+
+        function updateHeaderInfo() {
+            document.getElementById('headerTitle').innerText = db.config.name;
+            const logoImg = document.getElementById('headerLogoImg');
+            if(db.config.logo) {
+                logoImg.src = db.config.logo;
+                logoImg.style.display = 'block';
+            } else {
+                logoImg.style.display = 'none';
+            }
+        }
+        updateHeaderInfo();
+
+        function loginAdmin() {
+            db = JSON.parse(localStorage.getItem('coffeeFactoryDB_v2')) || db;
+            const u = document.getElementById('admLoginUser').value;
+            const p = document.getElementById('admLoginPass').value;
+            const found = db.admins.find(a => a.user === u && a.pass === p);
+            if(found) {
+                currentAdmin = found;
+                document.getElementById('adminAuthCard').classList.add('hidden');
+                document.getElementById('adminMain').classList.remove('hidden');
+                showAdminTab('adDash');
+            } else {
+                alert('بيانات الأدمن غير صحيحة');
+            }
+        }
+
+        function logoutAdmin() {
+            currentAdmin = null;
+            document.getElementById('adminMain').classList.add('hidden');
+            document.getElementById('adminAuthCard').classList.remove('hidden');
+        }
+
+        function showAdminTab(tabId) {
+            db = JSON.parse(localStorage.getItem('coffeeFactoryDB_v2')) || db;
+            document.querySelectorAll('.admin-tab').forEach(t => t.classList.add('hidden'));
+            document.querySelectorAll('.nav-tabs button').forEach(b => {
+                if(b.id.startsWith('btnAd')) b.classList.remove('active-tab');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            if(tabId === 'adDash') initAdminDash();
+            if(tabId === 'adProducts') renderAdminProducts();
+            if(tabId === 'adInvoices') renderAdminInvoices();
+            if(tabId === 'adSalesmen') initAdminSalesmenTab();
+            if(tabId === 'adSettings') initAdminSettings();
+        }
+
+        function initAdminDash() {
+            const totalSales = db.invoices.reduce((a,b) => a + b.total, 0);
+            document.getElementById('adStatSales').innerText = totalSales;
+            document.getElementById('adStatCount').innerText = db.invoices.length;
+
+            const netProfit = db.invoices.reduce((acc, inv) => acc + (inv.total - inv.costTotal - inv.salesmanProfit), 0);
+            document.getElementById('adStatNet').innerText = netProfit;
+        }
+
+        function saveProduct() {
+            const id = document.getElementById('editProdId').value;
+            const name = document.getElementById('pName').value;
+            const costPiece = parseFloat(document.getElementById('pCostPiece').value) || 0;
+            const sellPiece = parseFloat(document.getElementById('pSellPiece').value) || 0;
+            const costBox = parseFloat(document.getElementById('pCostBox').value) || 0;
+            const sellBox = parseFloat(document.getElementById('pSellBox').value) || 0;
+
+            if(!name) return alert('الرجاء أدخل اسم المنتج');
+
+            if(id) {
+                const p = db.products.find(x => x.id == id);
+                if(p) {
+                    p.name = name;
+                    p.costPiece = costPiece;
+                    p.sellPiece = sellPiece;
+                    p.costBox = costBox;
+                    p.sellBox = sellBox;
+                }
+                alert('تم تعديل المنتج بنجاح');
+            } else {
+                db.products.push({ id: Date.now(), name, costPiece, sellPiece, costBox, sellBox });
+                alert('تم إضافة المنتج بنجاح');
+            }
+            saveDB();
+            resetProductForm();
+            renderAdminProducts();
+        }
+
+        function editProduct(id) {
+            const p = db.products.find(x => x.id == id);
+            if(!p) return;
+            document.getElementById('editProdId').value = p.id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pCostPiece').value = p.costPiece;
+            document.getElementById('pSellPiece').value = p.sellPiece;
+            document.getElementById('pCostBox').value = p.costBox;
+            document.getElementById('pSellBox').value = p.sellBox;
+
+            document.getElementById('prodFormTitle').innerText = "تعديل صنف: " + p.name;
+            document.getElementById('prodSaveBtn').innerText = "حفظ التعديلات";
+            document.getElementById('prodCancelBtn').classList.remove('hidden');
+        }
+
+        function resetProductForm() {
+            document.getElementById('editProdId').value = '';
+            document.getElementById('pName').value = '';
+            document.getElementById('pCostPiece').value = '';
+            document.getElementById('pSellPiece').value = '';
+            document.getElementById('pCostBox').value = '';
+            document.getElementById('pSellBox').value = '';
+
+            document.getElementById('prodFormTitle').innerText = "إضافة صنف جديد للمنظومة";
+            document.getElementById('prodSaveBtn').innerText = "حفظ المنتج";
+            document.getElementById('prodCancelBtn').classList.add('hidden');
+        }
+
+        function deleteProduct(id) {
+            if(confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+                db.products = db.products.filter(p => p.id != id);
+                saveDB();
+                renderAdminProducts();
+            }
+        }
+
+        function renderAdminProducts() {
+            const tbody = document.getElementById('adProductsTbody');
+            tbody.innerHTML = '';
+            db.products.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${p.name}</b></td>
+                        <td>${p.costPiece} / ${p.sellPiece} د.ل</td>
+                        <td>${p.costBox} / ${p.sellBox} د.ل</td>
+                        <td>
+                            <button onclick="editProduct(${p.id})" style="background:#2563eb; padding:6px 12px; margin:2px; width:auto; font-size:0.85rem;">تعديل</button>
+                            <button onclick="deleteProduct(${p.id})" style="background:var(--danger); padding:6px 12px; margin:2px; width:auto; font-size:0.85rem;">حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAdminInvoices() {
+            const tbody = document.getElementById('adInvoicesTbody');
+            tbody.innerHTML = '';
+            db.invoices.forEach(i => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${i.salesmanName}</b></td>
+                        <td>#${i.id}</td>
+                        <td>${i.storeName}</td>
+                        <td><b>${i.total} د.ل</b></td>
+                        <td>${i.stampStatus}</td>
+                        <td>
+                            <button onclick="printInvoicePDF(db.invoices.find(x => x.id === ${i.id}))" style="background:#2563eb; padding:6px 12px; margin:2px; width:auto; font-size:0.85rem;">طباعة</button>
+                            <button onclick="adminDeleteInvoice(${i.id})" style="background:var(--danger); padding:6px 12px; margin:2px; width:auto; font-size:0.85rem;">حذف كلي</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function printInvoicePDF(inv) {
+            const printable = document.getElementById('printableArea');
+            printable.innerHTML = `
+                <div style="border: 2px solid #333; padding: 30px; border-radius: 12px; text-align: right; font-family: sans-serif; direction: rtl;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h2 style="margin:0; color:#4a3525;">${db.config.name}</h2>
+                            <p style="margin:5px 0; font-size: 0.9rem; color:#64748b;">هاتف المصنع: ${db.config.phone}</p>
+                        </div>
+                        ${db.config.logo ? `<img src="${db.config.logo}" style="height: 65px; max-width:90px; object-fit:contain;">` : ''}
+                    </div>
+                    <hr style="border:0; border-top:1px solid #e2e8f0; margin: 20px 0;">
+                    <h3 style="color:#1e293b;">فاتورة مبيعات رسمية رقم: #${inv.id}</h3>
+                    <p><b>التاريخ:</b> ${inv.date}</p>
+                    <p><b>المندوب:</b> ${inv.salesmanName} | <b>هاتفه:</b> ${inv.salesmanPhone || 'غير محدد'}</p>
+                    <p><b>المحل:</b> ${inv.storeName} | <b>المستلم:</b> ${inv.receiverName || 'غير محدد'} | <b>هاتفه:</b> ${inv.receiverPhone || 'غير محدد'}</p>
+                    <hr style="border:0; border-top:1px solid #e2e8f0; margin: 20px 0;">
+                    <table style="width:100%; border-collapse:collapse; margin: 15px 0; text-align: right;">
+                        <tr><th style="border:1px solid #cbd5e1; padding:10px; background:#f1f5f9; text-align:right;">المنتج</th><th style="border:1px solid #cbd5e1; padding:10px; background:#f1f5f9; text-align:right;">النوع</th><th style="border:1px solid #cbd5e1; padding:10px; background:#f1f5f9; text-align:right;">الكمية</th><th style="border:1px solid #cbd5e1; padding:10px; background:#f1f5f9; text-align:right;">الإجمالي</th></tr>
+                        <tr><td style="border:1px solid #cbd5e1; padding:10px; text-align:right;">${inv.productName}</td><td style="border:1px solid #cbd5e1; padding:10px; text-align:right;">${inv.unitType}</td><td style="border:1px solid #cbd5e1; padding:10px; text-align:right;">${inv.qty}</td><td style="border:1px solid #cbd5e1; padding:10px; text-align:right;">${inv.total} د.ل</td></tr>
+                    </table>
+                    <p style="margin-top:20px;"><b>طريقة الدفع:</b> ${inv.paymentType} &nbsp;&nbsp;|&nbsp;&nbsp; <b>حالة الختم:</b> [ ${inv.stampStatus} ]</p>
+                </div>
+            `;
+            printable.classList.remove('hidden');
+            window.print();
+            printable.classList.add('hidden');
+        }
+
+        function adminDeleteInvoice(id) {
+            if(confirm('حذف الفاتورة سيقوم بإزالتها كلياً من التقارير والخزنة وأرباح المندوب. متابعة؟')) {
+                db.invoices = db.invoices.filter(i => i.id !== id);
+                saveDB();
+                renderAdminInvoices();
+            }
+        }
+
+        function addSalesman() {
+            const name = document.getElementById('newSmName').value;
+            const user = document.getElementById('newSmUser').value;
+            const pass = document.getElementById('newSmPass').value;
+            const ratePiece = parseFloat(document.getElementById('newSmRatePiece').value) || 0;
+            const rateBox = parseFloat(document.getElementById('newSmRateBox').value) || 0;
+
+            if(!name || !user || !pass) return alert('الرجاء تعبئة بيانات المندوب');
+
+            db.salesmen.push({ id: Date.now(), name, user, pass, ratePiece, rateBox });
+            saveDB();
+            alert('تم إضافة المندوب بنجاح');
+            initAdminSalesmenTab();
+        }
+
+        function initAdminSalesmenTab() {
+            const select = document.getElementById('adSelectSalesman');
+            select.innerHTML = '<option value="">-- اختر مندوباً من القائمة --</option>';
+            db.salesmen.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name}</option>`;
+            });
+            document.getElementById('adSmDetailCard').classList.add('hidden');
+        }
+
+        function loadAdminSalesmanDetails() {
+            const sId = parseInt(document.getElementById('adSelectSalesman').value);
+            const sm = db.salesmen.find(s => s.id === sId);
+            if(!sm) {
+                document.getElementById('adSmDetailCard').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('adSmDetailCard').classList.remove('hidden');
+            document.getElementById('adSmTitle').innerText = "المندوب: " + sm.name;
+
+            const myInvs = db.invoices.filter(i => i.salesmanId === sId);
+            const totProf = myInvs.reduce((a,b) => a + b.salesmanProfit, 0);
+            const unpaidProf = myInvs.filter(i => i.stampStatus === 'غير خالص').reduce((a,b) => a + b.salesmanProfit, 0);
+            const paidOut = db.payouts.filter(p => p.salesmanId === sId).reduce((a,b) => a + b.amount, 0);
+
+            document.getElementById('adSmTotProf').innerText = totProf;
+            document.getElementById('adSmUnpaidProf').innerText = unpaidProf;
+            document.getElementById('adSmNetRem').innerText = totProf - paidOut;
+
+            document.getElementById('editSmName').value = sm.name;
+            document.getElementById('editSmUser').value = sm.user;
+            document.getElementById('editSmPass').value = sm.pass;
+            document.getElementById('editSmRatePiece').value = sm.ratePiece;
+            document.getElementById('editSmRateBox').value = sm.rateBox;
+        }
+
+        function updateSelectedSalesman() {
+            const sId = parseInt(document.getElementById('adSelectSalesman').value);
+            const sm = db.salesmen.find(s => s.id === sId);
+            if(!sm) return;
+
+            sm.name = document.getElementById('editSmName.value') || document.getElementById('editSmName').value;
+            sm.user = document.getElementById('editSmUser').value;
+            const newPass = document.getElementById('editSmPass').value;
+            if(newPass) sm.pass = newPass;
+            sm.ratePiece = parseFloat(document.getElementById('editSmRatePiece').value) || 0;
+            sm.rateBox = parseFloat(document.getElementById('editSmRateBox').value) || 0;
+
+            saveDB();
+            alert('تم تحديث بيانات المندوب بنجاح');
+            initAdminSalesmenTab();
+        }
+
+        function deleteSelectedSalesman() {
+            const sId = parseInt(document.getElementById('adSelectSalesman').value);
+            if(confirm('هل أنت متأكد من حذف هذا المندوب نهائياً؟')) {
+                db.salesmen = db.salesmen.filter(s => s.id !== sId);
+                saveDB();
+                alert('تم حذف المندوب بنجاح');
+                initAdminSalesmenTab();
+            }
+        }
+
+        function executePayout() {
+            const sId = parseInt(document.getElementById('adSelectSalesman').value);
+            const amount = parseFloat(document.getElementById('adPayoutVal').value);
+            if(!sId || !amount) return alert('الرجاء تحديد مندوب ومبلغ صالح للتسديد');
+
+            db.payouts.push({
+                id: Date.now(),
+                salesmanId: sId,
+                amount,
+                date: new Date().toLocaleDateString('ar-LY')
+            });
+            saveDB();
+            alert('تم تسديد القيمة بنجاح وتحديث رصيد المندوب');
+            loadAdminSalesmanDetails();
+        }
+
+        function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempLogoBase64 = e.target.result;
+                    const preview = document.getElementById('cfgLogoPreview');
+                    preview.src = tempLogoBase64;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function initAdminSettings() {
+            document.getElementById('cfgFactoryName').value = db.config.name;
+            document.getElementById('cfgFactoryPhone').value = db.config.phone;
+            tempLogoBase64 = db.config.logo;
+            const preview = document.getElementById('cfgLogoPreview');
+            if(tempLogoBase64) {
+                preview.src = tempLogoBase64;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function saveFactoryConfig() {
+            db.config.name = document.getElementById('cfgFactoryName').value;
+            db.config.phone = document.getElementById('cfgFactoryPhone').value;
+            db.config.logo = tempLogoBase64;
+            saveDB();
+            alert('تم حفظ إعدادات المصنع والشعار بنجاح');
+        }
+    </script>
+</body>
+</html>
